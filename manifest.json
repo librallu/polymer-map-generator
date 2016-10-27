@@ -1,0 +1,7 @@
+{
+  "name": "gen_map",
+  "short_name": "gen_map",
+  "description": "An app made with polymer that generates procedurally generated maps",
+  "start_url": "/",
+  "display": "standalone"
+}

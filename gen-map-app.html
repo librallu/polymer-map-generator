@@ -1,0 +1,187 @@
+<link rel="import" href="bower_components/polymer/polymer.html">
+<link rel="import" href="bower_components/paper-slider/paper-slider.html">
+<link rel="import" href="bower_components/app-layout/app-toolbar/app-toolbar.html">
+
+
+
+<dom-module id="gen-map-app">
+  <template>
+    <style>
+      :host {
+        margin: 0;
+        padding: 0;
+        display: block;
+        text-align: center;
+        font-family: sans-serif;
+        --app-primary-color: #1EAE55;
+        --app-secondary-color: black;
+      }
+
+      app-toolbar {
+        /* Toolbar is the main header, so give it some color */
+        background-color: var(--app-primary-color);
+        font-family: Helvetica, sans-serif;
+        color: white;
+        --app-toolbar-font-size: 24px;
+      }
+
+      #visu {
+          margin: auto;
+          display: block;
+          background-color: #ddd;
+          margin-top: 20px;
+          margin-bottom: 20px;
+      }
+    </style>
+
+      <app-toolbar>
+        <div main-title>Map Generator</div>
+      </app-toolbar>
+
+      <canvas id="visu" height="513px" width="513px"></canvas>
+
+      <p>Inspired by the excellent article <a href="http://linuxfr.org/news/je-cree-mon-jeu-video-e10-generation-procedurale-de-carte-partie-1#diamant-carr%C3%A9-diamond-square" alt="linuxfr.org">from linuxfr.org</a></p>
+
+    </app-header-layout>
+
+  </template>
+
+  <script>
+    Polymer({
+
+      is: 'gen-map-app',
+
+      properties: {
+        prop1: {
+          type: String,
+          value: 'gen-map-app',
+        },
+        size: {
+          type: Number,
+          value: 513
+        },
+      },
+
+      genMap: function() {
+
+        // init map
+        var res = [];
+        for ( var i = 0 ; i < this.size ; i++ ) {
+          res.push([]);
+          for ( var j = 0; j < this.size ; j++ )
+            res[i].push(0);
+        }
+
+        var w = this.size;
+        // diamond square algorithm
+        res[0][0] = Math.random();
+        res[0][w-1] = Math.random();
+        res[w-1][w-1] = Math.random();
+        res[w-1][0] = Math.random();
+
+        var noiseRatio = .9;
+
+        var s = w-1;
+        var s2 = Math.floor(s/2);
+
+        while ( s > 1 ) {
+
+          // diamond step
+          for ( var i = s2 ; i < w ; i+=s)
+            for ( var j = s2 ; j < w ; j+=s) {
+              res[i][j] = (res[i-s2][j-s2]+res[i+s2][j-s2]+res[i-s2][j+s2]+res[i+s2][j+s2])/4 + noiseRatio*(Math.random()-.5);
+              // console.log('DI i'+i+' j'+j+' r'+res[i][j]);
+            }
+
+          // square step
+          for ( var i = 0 ; i < w ; i+=s2)
+            for ( var j = s2*( 1-((i/s2)%2) ) ; j < w ; j+=s) {
+              if ( i == 0 )
+                res[i][j] = ( res[i+s2][j] + res[i][j-s2] + res[i][j+s2])/3 + noiseRatio*(Math.random()-.5);
+              else if ( j == 0 )
+                res[i][j] = ( res[i-s2][j] + res[i+s2][j] + res[i][j+s2])/3 + noiseRatio*(Math.random()-.5);
+              else if ( i == w-1 )
+                res[i][j] = ( res[i-s2][j] + res[i][j-s2] + res[i][j+s2])/3 + noiseRatio*(Math.random()-.5);
+              else if ( j == w-1 )
+                res[i][j] = ( res[i-s2][j] + res[i+s2][j] + res[i][j-s2])/3 + noiseRatio*(Math.random()-.5);
+              else
+                res[i][j] = ( res[i-s2][j] + res[i+s2][j] + res[i][j-s2] + res[i][j+s2] )/4 + noiseRatio*(Math.random()-.5);
+              // console.log('SQ i'+i+' j'+j+' r'+res[i][j]);
+            }
+
+          s = s2;
+          s2 = Math.floor(s/2);
+          noiseRatio /= 2;
+        }
+
+
+        // scaling (should be applied to the end)
+        var maxi = res[0][0];
+        var mini = res[0][0];
+        for ( var i = 0 ; i < w ; i++ )
+          for ( var j = 0 ; j < w ; j++) {
+            maxi = Math.max(maxi, res[i][j]);
+            mini = Math.min(mini, res[i][j]);
+          }
+
+        for ( var i = 0 ; i < w ; i++ )
+          for ( var j = 0 ; j < w ; j++) {
+            res[i][j] = (res[i][j]-mini)/(maxi-mini);
+          }
+
+        return res;
+      },
+
+      ready: function() {
+
+        this.canvas = this.querySelector('#visu');
+        if(!this.canvas) {
+          alert('Impossible to retrieve canvas element...');
+          return
+        }
+        this.context = this.canvas.getContext('2d');
+        if (!this.context) {
+          alert("Impossible to retrieve canvas's context");
+          return;
+        }
+
+
+        this.ramp = new Image();
+        this.ramp.src = 'ramp.png';
+        self = this;
+        this.ramp.onload = function() {
+          var map = self.genMap();
+          self.drawMap(map);
+        }
+      },
+
+      drawMap: function(map) {
+        this.canvas.width = this.size;
+        this.canvas.height = this.size;
+        //this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
+
+        // extract ramp info
+        var canvas = document.createElement('canvas');
+        canvas.width = this.ramp.width;
+        canvas.height = 1;
+        canvas.getContext('2d').drawImage(this.ramp, 0, 0, this.ramp.width, 1);
+        var rampdata = canvas.getContext('2d').getImageData(0, 0, canvas.width, 1).data
+
+        var image = this.context.createImageData(this.size, this.size);
+        var data = image.data;
+        for ( var i = 0 ; i < this.size ; i++ )
+          for ( var j = 0 ; j < this.size ; j++ ) {
+            var p = (i*this.size+j)*4;
+            var v = map[i][j];
+            data[p] = rampdata[Math.floor(v*canvas.width)*4];
+            data[p+1] = rampdata[Math.floor(v*canvas.width)*4+1];
+            data[p+2] = rampdata[Math.floor(v*canvas.width)*4+2];
+            data[p+3] = rampdata[Math.floor(v*canvas.width)*4+3];
+          }
+        this.context.putImageData(image, 0, 0);
+
+      },
+
+    });
+  </script>
+</dom-module>

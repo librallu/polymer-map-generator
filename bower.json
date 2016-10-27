@@ -1,0 +1,9 @@
+{
+  "name": "gen_map",
+  "description": "An app made with polymer that generates procedurally generated maps",
+  "main": "index.html",
+  "dependencies": {
+    "polymer": "Polymer/polymer#^1.4.0",
+    "app-layout": "^0.10.4"
+  }
+}
