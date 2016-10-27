@@ -1,5 +1,6 @@
 <link rel="import" href="bower_components/polymer/polymer.html">
 <link rel="import" href="bower_components/paper-slider/paper-slider.html">
+<link rel="import" href="bower_components/paper-button/paper-button.html">
 <link rel="import" href="bower_components/app-layout/app-toolbar/app-toolbar.html">
 
 
@@ -15,6 +16,17 @@
         font-family: sans-serif;
         --app-primary-color: #1EAE55;
         --app-secondary-color: black;
+      }
+
+      paper-button {
+        background-color: var(--app-primary-color);
+        color: white;
+        display: block;
+        width: 200px;
+        margin: auto;
+        margin-top: 10px;
+        text-align: center;
+        font-weight: bold;
       }
 
       app-toolbar {
@@ -39,6 +51,8 @@
       </app-toolbar>
 
       <canvas id="visu" height="513px" width="513px"></canvas>
+
+      <paper-button on-tap="generateAction" >GENERATE</paper-button>
 
       <p>Inspired by the excellent article <a href="http://linuxfr.org/news/je-cree-mon-jeu-video-e10-generation-procedurale-de-carte-partie-1#diamant-carr%C3%A9-diamond-square" alt="linuxfr.org">from linuxfr.org</a></p>
 
@@ -153,6 +167,11 @@
           var map = self.genMap();
           self.drawMap(map);
         }
+      },
+
+      generateAction: function() {
+        var map = self.genMap();
+        self.drawMap(map);
       },
 
       drawMap: function(map) {
