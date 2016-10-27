@@ -1848,6 +1848,167 @@ delete this[t])},_configureProperties:function(e,t){for(var n in e){var r=e[n];i
 
   <script>Polymer({is:"paper-slider",behaviors:[Polymer.IronA11yKeysBehavior,Polymer.IronFormElementBehavior,Polymer.PaperInkyFocusBehavior,Polymer.IronRangeBehavior],properties:{snaps:{type:Boolean,value:!1,notify:!0},pin:{type:Boolean,value:!1,notify:!0},secondaryProgress:{type:Number,value:0,notify:!0,observer:"_secondaryProgressChanged"},editable:{type:Boolean,value:!1},immediateValue:{type:Number,value:0,readOnly:!0,notify:!0},maxMarkers:{type:Number,value:0,notify:!0},expand:{type:Boolean,value:!1,readOnly:!0},dragging:{type:Boolean,value:!1,readOnly:!0},transiting:{type:Boolean,value:!1,readOnly:!0},markers:{type:Array,readOnly:!0,value:function(){return[]}}},observers:["_updateKnob(value, min, max, snaps, step)","_valueChanged(value)","_immediateValueChanged(immediateValue)","_updateMarkers(maxMarkers, min, max, snaps)"],hostAttributes:{role:"slider",tabindex:0},keyBindings:{"left down pagedown home":"_decrementKey","right up pageup end":"_incrementKey"},increment:function(){this.value=this._clampValue(this.value+this.step)},decrement:function(){this.value=this._clampValue(this.value-this.step)},_updateKnob:function(t,e,i,s,a){this.setAttribute("aria-valuemin",e),this.setAttribute("aria-valuemax",i),this.setAttribute("aria-valuenow",t),this._positionKnob(this._calcRatio(t))},_valueChanged:function(){this.fire("value-change")},_immediateValueChanged:function(){this.dragging?this.fire("immediate-value-change"):this.value=this.immediateValue},_secondaryProgressChanged:function(){this.secondaryProgress=this._clampValue(this.secondaryProgress)},_expandKnob:function(){this._setExpand(!0)},_resetKnob:function(){this.cancelDebouncer("expandKnob"),this._setExpand(!1)},_positionKnob:function(t){this._setImmediateValue(this._calcStep(this._calcKnobPosition(t))),this._setRatio(this._calcRatio(this.immediateValue)),this.$.sliderKnob.style.left=100*this.ratio+"%",this.dragging&&(this._knobstartx=this.ratio*this._w,this.translate3d(0,0,0,this.$.sliderKnob))},_calcKnobPosition:function(t){return(this.max-this.min)*t+this.min},_onTrack:function(t){switch(t.stopPropagation(),t.detail.state){case"start":this._trackStart(t);break;case"track":this._trackX(t);break;case"end":this._trackEnd()}},_trackStart:function(t){this._w=this.$.sliderBar.offsetWidth,this._x=this.ratio*this._w,this._startx=this._x,this._knobstartx=this._startx,this._minx=-this._startx,this._maxx=this._w-this._startx,this.$.sliderKnob.classList.add("dragging"),this._setDragging(!0)},_trackX:function(t){this.dragging||this._trackStart(t);var e=Math.min(this._maxx,Math.max(this._minx,t.detail.dx));this._x=this._startx+e;var i=this._calcStep(this._calcKnobPosition(this._x/this._w));this._setImmediateValue(i);var s=this._calcRatio(this.immediateValue)*this._w-this._knobstartx;this.translate3d(s+"px",0,0,this.$.sliderKnob)},_trackEnd:function(){var t=this.$.sliderKnob.style;this.$.sliderKnob.classList.remove("dragging"),this._setDragging(!1),this._resetKnob(),this.value=this.immediateValue,t.transform=t.webkitTransform="",this.fire("change")},_knobdown:function(t){this._expandKnob(),t.preventDefault(),this.focus()},_bardown:function(t){this._w=this.$.sliderBar.offsetWidth;var e=this.$.sliderBar.getBoundingClientRect(),i=(t.detail.x-e.left)/this._w,s=this.ratio;this._setTransiting(!0),this._positionKnob(i),this.debounce("expandKnob",this._expandKnob,60),s===this.ratio&&this._setTransiting(!1),this.async(function(){this.fire("change")}),t.preventDefault(),this.focus()},_knobTransitionEnd:function(t){t.target===this.$.sliderKnob&&this._setTransiting(!1)},_updateMarkers:function(t,e,i,s){s||this._setMarkers([]);var a=Math.round((i-e)/this.step);a>t&&(a=t),this._setMarkers(new Array(a))},_mergeClasses:function(t){return Object.keys(t).filter(function(e){return t[e]}).join(" ")},_getClassNames:function(){return this._mergeClasses({disabled:this.disabled,pin:this.pin,snaps:this.snaps,ring:this.immediateValue<=this.min,expand:this.expand,dragging:this.dragging,transiting:this.transiting,editable:this.editable})},_incrementKey:function(t){this.disabled||("end"===t.detail.key?this.value=this.max:this.increment(),this.fire("change"))},_decrementKey:function(t){this.disabled||("home"===t.detail.key?this.value=this.min:this.decrement(),this.fire("change"))},_changeValue:function(t){this.value=t.target.value,this.fire("change")},_inputKeyDown:function(t){t.stopPropagation()},_createRipple:function(){return this._rippleContainer=this.$.sliderKnob,Polymer.PaperInkyFocusBehaviorImpl._createRipple.call(this)},_focusedChanged:function(t){t&&this.ensureRipple(),this.hasRipple()&&(t?this._ripple.style.display="":this._ripple.style.display="none",this._ripple.holdDown=t)}});</script>
 </dom-module>
+<script>Polymer.PaperButtonBehaviorImpl={properties:{elevation:{type:Number,reflectToAttribute:!0,readOnly:!0}},observers:["_calculateElevation(focused, disabled, active, pressed, receivedFocusFromKeyboard)","_computeKeyboardClass(receivedFocusFromKeyboard)"],hostAttributes:{role:"button",tabindex:"0",animated:!0},_calculateElevation:function(){var e=1;this.disabled?e=0:this.active||this.pressed?e=4:this.receivedFocusFromKeyboard&&(e=3),this._setElevation(e)},_computeKeyboardClass:function(e){this.toggleClass("keyboard-focus",e)},_spaceKeyDownHandler:function(e){Polymer.IronButtonStateImpl._spaceKeyDownHandler.call(this,e),this.hasRipple()&&this.getRipple().ripples.length<1&&this._ripple.uiDownAction()},_spaceKeyUpHandler:function(e){Polymer.IronButtonStateImpl._spaceKeyUpHandler.call(this,e),this.hasRipple()&&this._ripple.uiUpAction()}},Polymer.PaperButtonBehavior=[Polymer.IronButtonState,Polymer.IronControlState,Polymer.PaperRippleBehavior,Polymer.PaperButtonBehaviorImpl];</script>
+<style is="custom-style">
+
+  :root {
+
+    --shadow-transition: {
+      transition: box-shadow 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+    };
+
+    --shadow-none: {
+      box-shadow: none;
+    };
+
+    /* from http://codepen.io/shyndman/pen/c5394ddf2e8b2a5c9185904b57421cdb */
+
+    --shadow-elevation-2dp: {
+      box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14),
+                  0 1px 5px 0 rgba(0, 0, 0, 0.12),
+                  0 3px 1px -2px rgba(0, 0, 0, 0.2);
+    };
+
+    --shadow-elevation-3dp: {
+      box-shadow: 0 3px 4px 0 rgba(0, 0, 0, 0.14),
+                  0 1px 8px 0 rgba(0, 0, 0, 0.12),
+                  0 3px 3px -2px rgba(0, 0, 0, 0.4);
+    };
+
+    --shadow-elevation-4dp: {
+      box-shadow: 0 4px 5px 0 rgba(0, 0, 0, 0.14),
+                  0 1px 10px 0 rgba(0, 0, 0, 0.12),
+                  0 2px 4px -1px rgba(0, 0, 0, 0.4);
+    };
+
+    --shadow-elevation-6dp: {
+      box-shadow: 0 6px 10px 0 rgba(0, 0, 0, 0.14),
+                  0 1px 18px 0 rgba(0, 0, 0, 0.12),
+                  0 3px 5px -1px rgba(0, 0, 0, 0.4);
+    };
+
+    --shadow-elevation-8dp: {
+      box-shadow: 0 8px 10px 1px rgba(0, 0, 0, 0.14),
+                  0 3px 14px 2px rgba(0, 0, 0, 0.12),
+                  0 5px 5px -3px rgba(0, 0, 0, 0.4);
+    };
+
+    --shadow-elevation-12dp: {
+      box-shadow: 0 12px 16px 1px rgba(0, 0, 0, 0.14),
+                  0 4px 22px 3px rgba(0, 0, 0, 0.12),
+                  0 6px 7px -4px rgba(0, 0, 0, 0.4);
+    };
+
+    --shadow-elevation-16dp: {
+      box-shadow: 0 16px 24px 2px rgba(0, 0, 0, 0.14),
+                  0  6px 30px 5px rgba(0, 0, 0, 0.12),
+                  0  8px 10px -5px rgba(0, 0, 0, 0.4);
+    };
+
+    --shadow-elevation-24dp: {
+      box-shadow: 0 24px 38px 3px rgba(0, 0, 0, 0.14),
+                  0 9px 46px 8px rgba(0, 0, 0, 0.12),
+                  0 11px 15px -7px rgba(0, 0, 0, 0.4);
+    };
+  }
+
+</style>
+<dom-module id="paper-material-shared-styles" assetpath="bower_components/paper-material/">
+  <template>
+    <style>
+      :host {
+        display: block;
+        position: relative;
+      }
+
+      :host([elevation="1"]) {
+        @apply(--shadow-elevation-2dp);
+      }
+
+      :host([elevation="2"]) {
+        @apply(--shadow-elevation-4dp);
+      }
+
+      :host([elevation="3"]) {
+        @apply(--shadow-elevation-6dp);
+      }
+
+      :host([elevation="4"]) {
+        @apply(--shadow-elevation-8dp);
+      }
+
+      :host([elevation="5"]) {
+        @apply(--shadow-elevation-16dp);
+      }
+    </style>
+  </template>
+</dom-module>
+<dom-module id="paper-button" assetpath="bower_components/paper-button/">
+  <template strip-whitespace="">
+    <style include="paper-material-shared-styles">
+      :host {
+        @apply(--layout-inline);
+        @apply(--layout-center-center);
+        position: relative;
+        box-sizing: border-box;
+        min-width: 5.14em;
+        margin: 0 0.29em;
+        background: transparent;
+        -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+        -webkit-tap-highlight-color: transparent;
+        font: inherit;
+        text-transform: uppercase;
+        outline-width: 0;
+        border-radius: 3px;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        -webkit-user-select: none;
+        user-select: none;
+        cursor: pointer;
+        z-index: 0;
+        padding: 0.7em 0.57em;
+
+        @apply(--paper-font-common-base);
+        @apply(--paper-button);
+      }
+
+      :host([hidden]) {
+        display: none !important;
+      }
+
+      :host([raised].keyboard-focus) {
+        font-weight: bold;
+        @apply(--paper-button-raised-keyboard-focus);
+      }
+
+      :host(:not([raised]).keyboard-focus) {
+        font-weight: bold;
+        @apply(--paper-button-flat-keyboard-focus);
+      }
+
+      :host([disabled]) {
+        background: #eaeaea;
+        color: #a8a8a8;
+        cursor: auto;
+        pointer-events: none;
+
+        @apply(--paper-button-disabled);
+      }
+
+      :host([animated]) {
+        @apply(--shadow-transition);
+      }
+
+      paper-ripple {
+        color: var(--paper-button-ink-color);
+      }
+    </style>
+
+    <content></content>
+  </template>
+
+  <script>Polymer({is:"paper-button",behaviors:[Polymer.PaperButtonBehavior],properties:{raised:{type:Boolean,reflectToAttribute:!0,value:!1,observer:"_calculateElevation"}},_calculateElevation:function(){this.raised?Polymer.PaperButtonBehaviorImpl._calculateElevation.apply(this):this._setElevation(0)}});</script>
+</dom-module>
 <dom-module id="app-toolbar" assetpath="bower_components/app-layout/app-toolbar/">
   <template>
     <style>
@@ -1913,6 +2074,17 @@ delete this[t])},_configureProperties:function(e,t){for(var n in e){var r=e[n];i
         --app-secondary-color: black;
       }
 
+      paper-button {
+        background-color: var(--app-primary-color);
+        color: white;
+        display: block;
+        width: 200px;
+        margin: auto;
+        margin-top: 10px;
+        text-align: center;
+        font-weight: bold;
+      }
+
       app-toolbar {
         /* Toolbar is the main header, so give it some color */
         background-color: var(--app-primary-color);
@@ -1936,13 +2108,15 @@ delete this[t])},_configureProperties:function(e,t){for(var n in e){var r=e[n];i
 
       <canvas id="visu" height="513px" width="513px"></canvas>
 
+      <paper-button on-tap="generateAction">GENERATE</paper-button>
+
       <p>Inspired by the excellent article <a href="http://linuxfr.org/news/je-cree-mon-jeu-video-e10-generation-procedurale-de-carte-partie-1#diamant-carr%C3%A9-diamond-square" alt="linuxfr.org">from linuxfr.org</a></p>
 
     
 
   </template>
 
-  <script>Polymer({is:"gen-map-app",properties:{prop1:{type:String,value:"gen-map-app"},size:{type:Number,value:513}},genMap:function(){for(var t=[],a=0;a<this.size;a++){t.push([]);for(var r=0;r<this.size;r++)t[a].push(0)}var e=this.size;t[0][0]=Math.random(),t[0][e-1]=Math.random(),t[e-1][e-1]=Math.random(),t[e-1][0]=Math.random();for(var i=.9,o=e-1,h=Math.floor(o/2);o>1;){for(var a=h;a<e;a+=o)for(var r=h;r<e;r+=o)t[a][r]=(t[a-h][r-h]+t[a+h][r-h]+t[a-h][r+h]+t[a+h][r+h])/4+i*(Math.random()-.5);for(var a=0;a<e;a+=h)for(var r=h*(1-a/h%2);r<e;r+=o)0==a?t[a][r]=(t[a+h][r]+t[a][r-h]+t[a][r+h])/3+i*(Math.random()-.5):0==r?t[a][r]=(t[a-h][r]+t[a+h][r]+t[a][r+h])/3+i*(Math.random()-.5):a==e-1?t[a][r]=(t[a-h][r]+t[a][r-h]+t[a][r+h])/3+i*(Math.random()-.5):r==e-1?t[a][r]=(t[a-h][r]+t[a+h][r]+t[a][r-h])/3+i*(Math.random()-.5):t[a][r]=(t[a-h][r]+t[a+h][r]+t[a][r-h]+t[a][r+h])/4+i*(Math.random()-.5);o=h,h=Math.floor(o/2),i/=2}for(var s=t[0][0],n=t[0][0],a=0;a<e;a++)for(var r=0;r<e;r++)s=Math.max(s,t[a][r]),n=Math.min(n,t[a][r]);for(var a=0;a<e;a++)for(var r=0;r<e;r++)t[a][r]=(t[a][r]-n)/(s-n);return t},ready:function(){return this.canvas=this.querySelector("#visu"),this.canvas?(this.context=this.canvas.getContext("2d"),this.context?(this.ramp=new Image,this.ramp.src="ramp.png",self=this,void(this.ramp.onload=function(){var t=self.genMap();self.drawMap(t)})):void alert("Impossible to retrieve canvas's context")):void alert("Impossible to retrieve canvas element...")},drawMap:function(t){this.canvas.width=this.size,this.canvas.height=this.size;var a=document.createElement("canvas");a.width=this.ramp.width,a.height=1,a.getContext("2d").drawImage(this.ramp,0,0,this.ramp.width,1);for(var r=a.getContext("2d").getImageData(0,0,a.width,1).data,e=this.context.createImageData(this.size,this.size),i=e.data,o=0;o<this.size;o++)for(var h=0;h<this.size;h++){var s=4*(o*this.size+h),n=t[o][h];i[s]=r[4*Math.floor(n*a.width)],i[s+1]=r[4*Math.floor(n*a.width)+1],i[s+2]=r[4*Math.floor(n*a.width)+2],i[s+3]=r[4*Math.floor(n*a.width)+3]}this.context.putImageData(e,0,0)}});</script>
+  <script>Polymer({is:"gen-map-app",properties:{prop1:{type:String,value:"gen-map-app"},size:{type:Number,value:513}},genMap:function(){for(var a=[],t=0;t<this.size;t++){a.push([]);for(var r=0;r<this.size;r++)a[t].push(0)}var e=this.size;a[0][0]=Math.random(),a[0][e-1]=Math.random(),a[e-1][e-1]=Math.random(),a[e-1][0]=Math.random();for(var i=.9,o=e-1,s=Math.floor(o/2);o>1;){for(var t=s;t<e;t+=o)for(var r=s;r<e;r+=o)a[t][r]=(a[t-s][r-s]+a[t+s][r-s]+a[t-s][r+s]+a[t+s][r+s])/4+i*(Math.random()-.5);for(var t=0;t<e;t+=s)for(var r=s*(1-t/s%2);r<e;r+=o)0==t?a[t][r]=(a[t+s][r]+a[t][r-s]+a[t][r+s])/3+i*(Math.random()-.5):0==r?a[t][r]=(a[t-s][r]+a[t+s][r]+a[t][r+s])/3+i*(Math.random()-.5):t==e-1?a[t][r]=(a[t-s][r]+a[t][r-s]+a[t][r+s])/3+i*(Math.random()-.5):r==e-1?a[t][r]=(a[t-s][r]+a[t+s][r]+a[t][r-s])/3+i*(Math.random()-.5):a[t][r]=(a[t-s][r]+a[t+s][r]+a[t][r-s]+a[t][r+s])/4+i*(Math.random()-.5);o=s,s=Math.floor(o/2),i/=2}for(var h=a[0][0],n=a[0][0],t=0;t<e;t++)for(var r=0;r<e;r++)h=Math.max(h,a[t][r]),n=Math.min(n,a[t][r]);for(var t=0;t<e;t++)for(var r=0;r<e;r++)a[t][r]=(a[t][r]-n)/(h-n);return a},ready:function(){return this.canvas=this.querySelector("#visu"),this.canvas?(this.context=this.canvas.getContext("2d"),this.context?(this.ramp=new Image,this.ramp.src="ramp.png",self=this,void(this.ramp.onload=function(){var a=self.genMap();self.drawMap(a)})):void alert("Impossible to retrieve canvas's context")):void alert("Impossible to retrieve canvas element...")},generateAction:function(){var a=self.genMap();self.drawMap(a)},drawMap:function(a){this.canvas.width=this.size,this.canvas.height=this.size;var t=document.createElement("canvas");t.width=this.ramp.width,t.height=1,t.getContext("2d").drawImage(this.ramp,0,0,this.ramp.width,1);for(var r=t.getContext("2d").getImageData(0,0,t.width,1).data,e=this.context.createImageData(this.size,this.size),i=e.data,o=0;o<this.size;o++)for(var s=0;s<this.size;s++){var h=4*(o*this.size+s),n=a[o][s];i[h]=r[4*Math.floor(n*t.width)],i[h+1]=r[4*Math.floor(n*t.width)+1],i[h+2]=r[4*Math.floor(n*t.width)+2],i[h+3]=r[4*Math.floor(n*t.width)+3]}this.context.putImageData(e,0,0)}});</script>
 </dom-module>
 </div>
     <gen-map-app></gen-map-app>

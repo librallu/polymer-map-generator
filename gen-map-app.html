@@ -1,5 +1,6 @@
 <html><head><link rel="import" href="bower_components/polymer/polymer.html">
 <link rel="import" href="bower_components/paper-slider/paper-slider.html">
+<link rel="import" href="bower_components/paper-button/paper-button.html">
 <link rel="import" href="bower_components/app-layout/app-toolbar/app-toolbar.html">
 
 
@@ -15,6 +16,17 @@
         font-family: sans-serif;
         --app-primary-color: #1EAE55;
         --app-secondary-color: black;
+      }
+
+      paper-button {
+        background-color: var(--app-primary-color);
+        color: white;
+        display: block;
+        width: 200px;
+        margin: auto;
+        margin-top: 10px;
+        text-align: center;
+        font-weight: bold;
       }
 
       app-toolbar {
@@ -40,12 +52,14 @@
 
       <canvas id="visu" height="513px" width="513px"></canvas>
 
+      <paper-button on-tap="generateAction">GENERATE</paper-button>
+
       <p>Inspired by the excellent article <a href="http://linuxfr.org/news/je-cree-mon-jeu-video-e10-generation-procedurale-de-carte-partie-1#diamant-carr%C3%A9-diamond-square" alt="linuxfr.org">from linuxfr.org</a></p>
 
     
 
   </template>
 
-  <script>Polymer({is:"gen-map-app",properties:{prop1:{type:String,value:"gen-map-app"},size:{type:Number,value:513}},genMap:function(){for(var t=[],a=0;a<this.size;a++){t.push([]);for(var r=0;r<this.size;r++)t[a].push(0)}var e=this.size;t[0][0]=Math.random(),t[0][e-1]=Math.random(),t[e-1][e-1]=Math.random(),t[e-1][0]=Math.random();for(var i=.9,o=e-1,h=Math.floor(o/2);o>1;){for(var a=h;a<e;a+=o)for(var r=h;r<e;r+=o)t[a][r]=(t[a-h][r-h]+t[a+h][r-h]+t[a-h][r+h]+t[a+h][r+h])/4+i*(Math.random()-.5);for(var a=0;a<e;a+=h)for(var r=h*(1-a/h%2);r<e;r+=o)0==a?t[a][r]=(t[a+h][r]+t[a][r-h]+t[a][r+h])/3+i*(Math.random()-.5):0==r?t[a][r]=(t[a-h][r]+t[a+h][r]+t[a][r+h])/3+i*(Math.random()-.5):a==e-1?t[a][r]=(t[a-h][r]+t[a][r-h]+t[a][r+h])/3+i*(Math.random()-.5):r==e-1?t[a][r]=(t[a-h][r]+t[a+h][r]+t[a][r-h])/3+i*(Math.random()-.5):t[a][r]=(t[a-h][r]+t[a+h][r]+t[a][r-h]+t[a][r+h])/4+i*(Math.random()-.5);o=h,h=Math.floor(o/2),i/=2}for(var s=t[0][0],n=t[0][0],a=0;a<e;a++)for(var r=0;r<e;r++)s=Math.max(s,t[a][r]),n=Math.min(n,t[a][r]);for(var a=0;a<e;a++)for(var r=0;r<e;r++)t[a][r]=(t[a][r]-n)/(s-n);return t},ready:function(){return this.canvas=this.querySelector("#visu"),this.canvas?(this.context=this.canvas.getContext("2d"),this.context?(this.ramp=new Image,this.ramp.src="ramp.png",self=this,void(this.ramp.onload=function(){var t=self.genMap();self.drawMap(t)})):void alert("Impossible to retrieve canvas's context")):void alert("Impossible to retrieve canvas element...")},drawMap:function(t){this.canvas.width=this.size,this.canvas.height=this.size;var a=document.createElement("canvas");a.width=this.ramp.width,a.height=1,a.getContext("2d").drawImage(this.ramp,0,0,this.ramp.width,1);for(var r=a.getContext("2d").getImageData(0,0,a.width,1).data,e=this.context.createImageData(this.size,this.size),i=e.data,o=0;o<this.size;o++)for(var h=0;h<this.size;h++){var s=4*(o*this.size+h),n=t[o][h];i[s]=r[4*Math.floor(n*a.width)],i[s+1]=r[4*Math.floor(n*a.width)+1],i[s+2]=r[4*Math.floor(n*a.width)+2],i[s+3]=r[4*Math.floor(n*a.width)+3]}this.context.putImageData(e,0,0)}});</script>
+  <script>Polymer({is:"gen-map-app",properties:{prop1:{type:String,value:"gen-map-app"},size:{type:Number,value:513}},genMap:function(){for(var a=[],t=0;t<this.size;t++){a.push([]);for(var r=0;r<this.size;r++)a[t].push(0)}var e=this.size;a[0][0]=Math.random(),a[0][e-1]=Math.random(),a[e-1][e-1]=Math.random(),a[e-1][0]=Math.random();for(var i=.9,o=e-1,s=Math.floor(o/2);o>1;){for(var t=s;t<e;t+=o)for(var r=s;r<e;r+=o)a[t][r]=(a[t-s][r-s]+a[t+s][r-s]+a[t-s][r+s]+a[t+s][r+s])/4+i*(Math.random()-.5);for(var t=0;t<e;t+=s)for(var r=s*(1-t/s%2);r<e;r+=o)0==t?a[t][r]=(a[t+s][r]+a[t][r-s]+a[t][r+s])/3+i*(Math.random()-.5):0==r?a[t][r]=(a[t-s][r]+a[t+s][r]+a[t][r+s])/3+i*(Math.random()-.5):t==e-1?a[t][r]=(a[t-s][r]+a[t][r-s]+a[t][r+s])/3+i*(Math.random()-.5):r==e-1?a[t][r]=(a[t-s][r]+a[t+s][r]+a[t][r-s])/3+i*(Math.random()-.5):a[t][r]=(a[t-s][r]+a[t+s][r]+a[t][r-s]+a[t][r+s])/4+i*(Math.random()-.5);o=s,s=Math.floor(o/2),i/=2}for(var h=a[0][0],n=a[0][0],t=0;t<e;t++)for(var r=0;r<e;r++)h=Math.max(h,a[t][r]),n=Math.min(n,a[t][r]);for(var t=0;t<e;t++)for(var r=0;r<e;r++)a[t][r]=(a[t][r]-n)/(h-n);return a},ready:function(){return this.canvas=this.querySelector("#visu"),this.canvas?(this.context=this.canvas.getContext("2d"),this.context?(this.ramp=new Image,this.ramp.src="ramp.png",self=this,void(this.ramp.onload=function(){var a=self.genMap();self.drawMap(a)})):void alert("Impossible to retrieve canvas's context")):void alert("Impossible to retrieve canvas element...")},generateAction:function(){var a=self.genMap();self.drawMap(a)},drawMap:function(a){this.canvas.width=this.size,this.canvas.height=this.size;var t=document.createElement("canvas");t.width=this.ramp.width,t.height=1,t.getContext("2d").drawImage(this.ramp,0,0,this.ramp.width,1);for(var r=t.getContext("2d").getImageData(0,0,t.width,1).data,e=this.context.createImageData(this.size,this.size),i=e.data,o=0;o<this.size;o++)for(var s=0;s<this.size;s++){var h=4*(o*this.size+s),n=a[o][s];i[h]=r[4*Math.floor(n*t.width)],i[h+1]=r[4*Math.floor(n*t.width)+1],i[h+2]=r[4*Math.floor(n*t.width)+2],i[h+3]=r[4*Math.floor(n*t.width)+3]}this.context.putImageData(e,0,0)}});</script>
 </dom-module>
 </body></html>
