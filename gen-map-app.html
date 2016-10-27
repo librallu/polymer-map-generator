@@ -1,0 +1,51 @@
+<html><head><link rel="import" href="bower_components/polymer/polymer.html">
+<link rel="import" href="bower_components/paper-slider/paper-slider.html">
+<link rel="import" href="bower_components/app-layout/app-toolbar/app-toolbar.html">
+
+
+
+</head><body><dom-module id="gen-map-app">
+  <template>
+    <style>
+      :host {
+        margin: 0;
+        padding: 0;
+        display: block;
+        text-align: center;
+        font-family: sans-serif;
+        --app-primary-color: #1EAE55;
+        --app-secondary-color: black;
+      }
+
+      app-toolbar {
+        /* Toolbar is the main header, so give it some color */
+        background-color: var(--app-primary-color);
+        font-family: Helvetica, sans-serif;
+        color: white;
+        --app-toolbar-font-size: 24px;
+      }
+
+      #visu {
+          margin: auto;
+          display: block;
+          background-color: #ddd;
+          margin-top: 20px;
+          margin-bottom: 20px;
+      }
+    </style>
+
+      <app-toolbar>
+        <div main-title="">Map Generator</div>
+      </app-toolbar>
+
+      <canvas id="visu" height="513px" width="513px"></canvas>
+
+      <p>Inspired by the excellent article <a href="http://linuxfr.org/news/je-cree-mon-jeu-video-e10-generation-procedurale-de-carte-partie-1#diamant-carr%C3%A9-diamond-square" alt="linuxfr.org">from linuxfr.org</a></p>
+
+    
+
+  </template>
+
+  <script>Polymer({is:"gen-map-app",properties:{prop1:{type:String,value:"gen-map-app"},size:{type:Number,value:513}},genMap:function(){for(var t=[],a=0;a<this.size;a++){t.push([]);for(var r=0;r<this.size;r++)t[a].push(0)}var e=this.size;t[0][0]=Math.random(),t[0][e-1]=Math.random(),t[e-1][e-1]=Math.random(),t[e-1][0]=Math.random();for(var i=.9,o=e-1,h=Math.floor(o/2);o>1;){for(var a=h;a<e;a+=o)for(var r=h;r<e;r+=o)t[a][r]=(t[a-h][r-h]+t[a+h][r-h]+t[a-h][r+h]+t[a+h][r+h])/4+i*(Math.random()-.5);for(var a=0;a<e;a+=h)for(var r=h*(1-a/h%2);r<e;r+=o)0==a?t[a][r]=(t[a+h][r]+t[a][r-h]+t[a][r+h])/3+i*(Math.random()-.5):0==r?t[a][r]=(t[a-h][r]+t[a+h][r]+t[a][r+h])/3+i*(Math.random()-.5):a==e-1?t[a][r]=(t[a-h][r]+t[a][r-h]+t[a][r+h])/3+i*(Math.random()-.5):r==e-1?t[a][r]=(t[a-h][r]+t[a+h][r]+t[a][r-h])/3+i*(Math.random()-.5):t[a][r]=(t[a-h][r]+t[a+h][r]+t[a][r-h]+t[a][r+h])/4+i*(Math.random()-.5);o=h,h=Math.floor(o/2),i/=2}for(var s=t[0][0],n=t[0][0],a=0;a<e;a++)for(var r=0;r<e;r++)s=Math.max(s,t[a][r]),n=Math.min(n,t[a][r]);for(var a=0;a<e;a++)for(var r=0;r<e;r++)t[a][r]=(t[a][r]-n)/(s-n);return t},ready:function(){return this.canvas=this.querySelector("#visu"),this.canvas?(this.context=this.canvas.getContext("2d"),this.context?(this.ramp=new Image,this.ramp.src="ramp.png",self=this,void(this.ramp.onload=function(){var t=self.genMap();self.drawMap(t)})):void alert("Impossible to retrieve canvas's context")):void alert("Impossible to retrieve canvas element...")},drawMap:function(t){this.canvas.width=this.size,this.canvas.height=this.size;var a=document.createElement("canvas");a.width=this.ramp.width,a.height=1,a.getContext("2d").drawImage(this.ramp,0,0,this.ramp.width,1);for(var r=a.getContext("2d").getImageData(0,0,a.width,1).data,e=this.context.createImageData(this.size,this.size),i=e.data,o=0;o<this.size;o++)for(var h=0;h<this.size;h++){var s=4*(o*this.size+h),n=t[o][h];i[s]=r[4*Math.floor(n*a.width)],i[s+1]=r[4*Math.floor(n*a.width)+1],i[s+2]=r[4*Math.floor(n*a.width)+2],i[s+3]=r[4*Math.floor(n*a.width)+3]}this.context.putImageData(e,0,0)}});</script>
+</dom-module>
+</body></html>
